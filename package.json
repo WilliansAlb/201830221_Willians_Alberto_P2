@@ -1,0 +1,22 @@
+{
+  "name": "proyecto1",
+  "version": "0.0.1",
+  "description": "Primer proyecto del curso de Lenguajes Formales y de Programación",
+  "main": "index.js",
+  "scripts": {
+    "test": "index.js",
+    "start": "nodemon ./src",
+    "dev": "nodemon src"
+  },
+  "author": "Willians",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "ejs": "^2.7.1",
+    "express": "^4.17.1",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.19.3",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {}
+}
