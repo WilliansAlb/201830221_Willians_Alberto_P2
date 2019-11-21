@@ -6,15 +6,27 @@ const url = "http://localhost:3000/users";
 const urlp = "http://localhost:3000/pusers";
 var result;
 var lineas;
+var input = document.getElementById('archivo');
+var reader = new FileReader;
 let w = 0;
 var palabras1 = [];
 var tipos = [];
+var buscando = [];
 var columnas = [];
 var tipo = 1000;
 var matriz = new Array(17);
+
+var matriz2 = new Array(13);
 var estado = 0;
 var fila1 = [];
-
+var comillas = 0;
+var corchetesab = 0;
+var corchetesce = 0;
+var count = 0;
+var tmp;
+var palabraTem = "";
+var mensaje = "";
+var errores = 0;
 
 matriz[0] = new Array(12);
 matriz[1] = new Array(12);
@@ -112,13 +124,9 @@ matriz[15][8] = 15;
 matriz[15][9] = 15;
 matriz[15][10] = 15;
 matriz[15][11] = 16;
-
-
 matriz[16][10] = 55;
 
-
-var input = document.getElementById('archivo');
-var reader = new FileReader;
+var array = [];
 
 input.addEventListener('change', onChange);
 function onChange(event) {
@@ -126,7 +134,6 @@ function onChange(event) {
   reader.readAsText(file);
   reader.onload = onLoad;
 }
-var array = [];
 function onLoad() {
   var tmpo = [];
   result = reader.result;
@@ -154,16 +161,17 @@ function onLoad() {
   }
   partir();
 }
-var count = 0;
-var tmp;
-var palabraTem = "";
+
 function partir() {
   palabraTem = "";
   let nuevoE = 0;
   let columna = 0;
   for (let p = 0; p < lineas.length; p++) {
     var lineaTemporal = lineas[p];
-    palabraTem = "";
+    if (estado == 11 || estado == 12 || estado == 15) {
+
+      palabraTem = "";
+    }
     for (let q = 0; q < lineaTemporal.length; q++) {
       var char = lineaTemporal.charAt(q);
       char1 = char.replace(' ', '_');
@@ -176,6 +184,7 @@ function partir() {
       } else if (char1 == ':' || char1 == ';') {
         tipo = 4;
       } else if (char1 == '"') {
+        comillas++;
         tipo = 8;
       } else if (char1 == "'") {
         tipo = 9;
@@ -187,6 +196,9 @@ function partir() {
         tipo = 6;
       } else if (char1 == '{' || char1 == '(' || char1 == ')') {
         tipo = 3;
+        if (char1 == '{') {
+          corchetesab++;
+        }
       } else if (char1 == '=' || char1 == '<' || char1 == '>') {
         if (estado = 0) {
           tipo = 0;
@@ -195,10 +207,10 @@ function partir() {
         }
       } else if (char1 == '}') {
         tipo = 3;
+        corchetesce++;
       } else if (char1 == '_') {
         if (palabraTem.length > 0 && estado < 10) {
           palabras1.push(palabraTem);
-          console.log(palabraTem);
           columna++;
           columnas.push(columna);
           fila1.push(p + 1);
@@ -211,19 +223,27 @@ function partir() {
       }
 
       if (p == (lineas.length - 1) && q == (lineaTemporal.length - 1)) {
-        if (palabraTem.length > 0) {
+        if (palabraTem.length > 0 && estado < 10) {
           palabras1.push(palabraTem);
           fila1.push(p + 1);
           columna++;
           columnas.push(columna);
+          palabraTem = "";
         }
-        palabraTem = "";
+
         palabraTem += char1;
-        palabras1.push(palabraTem);
+        if (estado < 10) {
+          palabras1.push(palabraTem);
+        } else {
+          var imp1 = "";
+          for (var i = 0; i < palabraTem.length; i++) {
+            imp1 += palabraTem.charAt(i).replace('_', ' ');
+          }
+          palabras1.push(imp1);
+        }
 
         columna++;
         columnas.push(columna);
-        console.log(palabraTem);
         fila1.push(p + 1);
       } else {
         if (tipo < 56) {
@@ -238,7 +258,6 @@ function partir() {
 
             columna++;
             columnas.push(columna);
-            console.log(imp);
             fila1.push(p + 1);
             palabraTem = "";
             estado = 0;
@@ -247,12 +266,17 @@ function partir() {
             estado = matriz[estado][tipo];
           } else {
             if (palabraTem.length > 0) {
-              if (palabraTem.replace(' ','_') != '_') {
-                palabras1.push(palabraTem);
-                columna++;
-                columnas.push(columna);
+
+              if (estado != 11 && estado != 12 && estado != 15) {
+                var patem = palabraTem.trim();
+                if (patem.length == 0 || patem == "_") {
+
+                } else {
+                  palabras1.push(palabraTem);
+                  columna++;
+                  columnas.push(columna);
+                }
               }
-              console.log(palabraTem);
               fila1.push(p + 1);
               palabraTem = "";
               palabraTem += char1;
@@ -266,8 +290,8 @@ function partir() {
         }
       }
     }
-    if (estado == 11 && estado == 12 && estado == 15) {
-      console.log("continua el comentario");
+    if (estado == 11 || estado == 12 || estado == 15) {
+
     } else {
       palabraTem = "";
       estado = 0;
@@ -275,69 +299,180 @@ function partir() {
     columna = 0;
   }
   definirTipo();
+  escribiendoMensaje();
+  hacerMatriz();
 }
+function hacerMatriz() {
+  for (var h = 0; h < 13; h++) {
+    matriz2[p] = new Array(31);
+  }
+  for (var i = 0; i < 13; i++) {
+    for (var u = 0; u < 31; u++) {
+      matriz2[i][u] = 0;
+    }
+  }
+  estadosMatriz();
+}
+function estadosMatriz() {
+  matriz2[0][0] = ['FUNCION','PRINCIPAL','{','operaciones','}','codigo'];
+  matriz2[1][0] = ['FUNCION','ID','(','parametros',')','{','operaciones','}','codigo'];
+  matriz2[1][2] = ['operaciones'];
+  matriz2[1][3] = ['operaciones'];
+  matriz2[1][4] = ['operaciones'];
+  matriz2[1][23] = ['EPSILON'];
+  matriz2[1][5] = ['operaciones'];
+  matriz2[2][2] = ['VARIABLE','tipo','ID','f'];
+  matriz2[1][6] = ['operaciones'];
+  matriz2[2][3] = ['SI','(','CONDICION',')','{','operaciones','}','p','operaciones'];
+  matriz2[2][4] = ['MIENTRAS','(','CONDICION',')','{','operaciones','}','operaciones'];
+  matriz2[2][5] = ['HACER','{','operaciones','}','MIENTRAS','(','CONDICION',')','operaciones'];
+  matriz2[2][6] = ['ID','f'];
+  matriz2[3][2] = ['EPSILON'];
+  matriz2[3][3] = ['EPSILON'];
+  matriz2[3][4] = ['EPSILON'];
+  matriz2[3][5] = ['EPSILON'];
+  matriz2[3][6] = ['EPSILON'];
+  matriz2[3][7] = ['SINO','{','codigo','}'];
+  
+  matriz2[4][22] = ['(','parametros',')'];
+  matriz2[4][29] = ['=','valor',';'];
+  matriz2[4][30] = [';'];
 
+  matriz2[5][8] = ['ENTERO'];
+  matriz2[5][9] = ['FLOTANTE'];
+  matriz2[5][10] = ['BOOLEANO'];
+  matriz2[5][11] = ['FLOTANTE'];
+  
+  matriz2[6][2] = ['VARIABLE','ID','=','valor'];
+  matriz2[6][6] = ['ID'];
+
+  matriz2[7][17] = ['CADENAV'];
+  matriz2[7][18] = ['ENTEROV'];
+  matriz2[7][19] = ['FLOTANTEV'];
+  matriz2[7][20] = ['FLOTANTEV'];
+  matriz2[7][21] = ['BOOLEANOV'];
+  matriz2[7][27] = ['EPSILON'];
+
+  matriz2[8][6] = ['ID','operador','ID','q','math'];
+  matriz2[8][22] = ['(','math',')','q'];
+  matriz2[8][27] = ['EPSILON'];
+
+  matriz2[9][6] = ['EPSILON'];
+  matriz2[9][12] = ['operador'];
+  matriz2[9][13] = ['operador'];
+  matriz2[9][14] = ['operador'];
+  matriz2[9][15] = ['operador'];
+  matriz2[9][16] = ['operador'];
+  matriz2[9][22] = ['EPSILON'];
+  matriz2[9][28] = ['EPSILON'];
+
+  matriz2[10][12] = ['+'];
+  matriz2[10][13] = ['-'];
+  matriz2[10][14] = ['*'];
+  matriz2[10][15] = ['/'];
+  matriz2[10][16] = ['%'];
+  matriz2[10][24] = ['=='];
+  matriz2[10][25] = ['<='];
+  matriz2[10][26] = ['>='];
+  matriz2[11][6] = ['ID','comparador','valor'];
+  matriz2[12][24] = ['=='];
+  matriz2[12][25] = ['<='];
+  matriz2[12][26] = ['>='];
+}
 function definirTipo() {
   var temporalpal = "";
   for (var i = 0; i < palabras1.length; i++) {
     temporalpal = palabras1[i];
-    if (temporalpal >= 0) {
+    if (temporalpal >= 0 || temporalpal.charAt(0) >= 0) {
+      console.log(temporalpal);
       if (temporalpal - Math.floor(temporalpal) == 0) {
         tipos.push("ENTERO");
+        buscando.push("ENTEROV");
       } else {
         tipos.push("FLOTANTE");
+        buscando.push("FLOTANTEV");
       }
     } else if (temporalpal.length == 1 && !esLetra(temporalpal.charAt(0))) {
       if (esOpera(temporalpal) || temporalpal == "/" || temporalpal == "*") {
         tipos.push("OPERADOR");
+        buscando.push(temporalpal);
       } else if (temporalpal == '"' || temporalpal == ':' || temporalpal == ';' || temporalpal == '“') {
         tipos.push("SIMBOLO");
+        if (temporalpal==';'){
+          buscando.push(';');
+        } else {
+          buscando.push('SIMBOLO DESCONOCIDO');
+        }
       } else if (temporalpal == '.') {
         tipos.push("PUNTO-ERROR");
       } else if (temporalpal == '{' || temporalpal == '(' || temporalpal == ')') {
         tipos.push("AGRUPACION");
+        buscando.push(temporalpal);
       } else if (temporalpal == '=' || temporalpal == '<' || temporalpal == '>') {
         tipos.push("OPERADOR");
+        buscando.push(temporalpal);
       } else if (temporalpal == '}') {
         tipos.push("AGRUPACION");
+        buscando.push(temporalpal);
       }
     } else if (temporalpal == '<=' || temporalpal == '>=' || temporalpal == '==') {
       tipos.push("COMPARADOR");
+      buscando.push(temporalpal);
     } else {
       if (temporalpal.length > 1 && temporalpal.indexOf('"') != -1 && temporalpal.charAt(0) == '"') {
         tipos.push("CADENA");
+        buscando.push('CADENA');
       } else if (temporalpal.length > 3 && temporalpal.indexOf('*') != -1 && temporalpal.charAt(0) == '/') {
         tipos.push("COMENTARIO");
+        buscando.push("COMENTARIO");
+      } else if (temporalpal.length == 3 && temporalpal.indexOf("'") != -1 && temporalpal.charAt(2) == "'") {
+        tipos.push("CARACTER");
+        buscando.push("CADENAV");
       } else {
         if (esPalabraReservada(temporalpal)) {
-          tipos.push(temporalpal);
+          tipos.push(temporalpal.toUpperCase());
+          buscando.push(temporalpal.toUpperCase());
         } else {
           tipos.push("IDENTIFICADOR");
+          buscando.push("ID");
         }
       }
     }
   }
 }
+function escribiendoMensaje() {
+  if (corchetesce != corchetesab) {
+    errores++;
+    mensaje += "<h5>" + errores + " ERROR - Falta que se cierre un corchete</h5>";
+  }
+  if (comillas % 2 != 0) {
+    errores++;
+    mensaje += "<h5>" + errores + " ERROR - Falta que se cierre un corchete</h5>";
+  }
+  if (errores == 1) {
+    var txttemp = "<h4>" + errores + " ERROR</h4>" + mensaje;
+  } else {
+    var txttemp = "<h4>" + errores + " ERRORES</h4>" + mensaje;
+  }
+  mensaje = txttemp;
+  corchetesab = 0;
+  corchetesce = 0;
+  comillas = 0;
+}
 
 const sendData = () => {
-  if (count < array.length) {
-    tmp = array[count];
-  }
-  else {
-    tmp = 'fin';
-  }
   axios.post('http://localhost:3000/postusers',
     {
       arrayTipos: tipos,
       arrayColumnas: columnas,
       arrayLinea: fila1,
+      arrayAnalisis: buscando,
       prue: palabras1
     },
     {
       'Content-Type': 'application/json'
     })
     .then(response => {
-
     })
     .catch(error => {
       console.log(error);
@@ -345,14 +480,24 @@ const sendData = () => {
   count++;
 };
 
-
+function mostrar() {
+  var errores1 = document.getElementById("errores1");
+  errores1.innerHTML = errores1.innerHTML + mensaje;
+  var x = document.getElementById('contenido');
+  var y = document.getElementById('central');
+  var z = document.getElementById('get');
+  var a = document.getElementById('post');
+  if (x.style.display = 'none') {
+    x.style.display = 'block';
+    z.style.display = 'inline-block';
+    a.style.display = 'inline-block';
+    y.style.margin = '2% 30% 5% 30%';
+  } else {
+    x.style.display = 'none';
+  }
+}
 const getData = () => {
   axios.get(url).then(response => {
-    if (tmp != 'fin') {
-      //var htmlTexto = "<tr><td>" + response.data.tx3[w] + "</td><td>" + response.data.tx3.length+ "</td><td>" + tmp + "</td></tr>";
-      //w++;
-      //datos.innerHTML = datos.innerHTML + htmlTexto;
-    }
     for (let y = 0; y < response.data.tx3.length; y++) {
       setTimeout(function () {
         var htmlTexto = "<tr><td>" + response.data.tx3[y] + "</td><td>" + response.data.tx4[y] + "</td><td>" + response.data.tx5[y] + "</td><td>" + response.data.tx6[y] + "</td></tr>";

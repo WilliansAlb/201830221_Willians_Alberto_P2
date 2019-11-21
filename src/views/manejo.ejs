@@ -15,7 +15,7 @@
         <div id="central" style='margin: 17% 30% 15% 30%;background-color: #150016;color: yellow;'>
             <%include nav.html%>
             <div id="ingresar">
-                <h2>Analizador</h2>
+                <h2>ANALIZADOR</h2>
                 <h3>Ingresa el archivo</h3>
                 <input id="archivo" type="file" name="archivo" accept=".txt" style="margin-bottom: 10px;" />
                 <input id="botons" type="button" value="verificar" onclick="mostrar()" />
@@ -26,8 +26,12 @@
             </div>
             <input type="button" value="Analizar" id='get' style="margin-bottom: 10px; display: none;" disabled
                 onclick="mostrarTabla()" />
-            <input type="button" value="Enviar archivo" id='post' style="margin-bottom: 10px; display: none;" onclick="habilitarBoton()"/>
+            <input type="button" value="Enviar archivo" id='post' style="margin-bottom: 10px; display: none;"
+                onclick="habilitarBoton()" />
             <button id="ocultart" style="display: none;" onclick="funcion2()">Ocultar tabla</button>
+            <div id="errores1" style="background-color: #505050; margin: 0% 10% 5% 10%; display: none;">
+                <h2>ERRORES LEXICOS</h2>
+            </div>
             <div id='tabla1' style="display: none;">
                 <table id="tabla0">
                     <thead>
@@ -47,20 +51,7 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="/manejo.js"></script>
     <script>
-        function mostrar() {
-            var x = document.getElementById('contenido');
-            var y = document.getElementById('central');
-            var z = document.getElementById('get');
-            var a = document.getElementById('post');
-            if (x.style.display = 'none') {
-                x.style.display = 'block';
-                z.style.display = 'inline-block';
-                a.style.display = 'inline-block';
-                y.style.margin = '2% 30% 5% 30%';
-            } else {
-                x.style.display = 'none';
-            }
-        }
+
         function mostrarTabla() {
             var x = document.getElementById('tabla1');
             var button = document.getElementById('get');
@@ -70,8 +61,10 @@
                 button.disabled = 'true';
                 ocultart.style.display = 'block';
             }
+            var errores = document.getElementById("errores1");
+            errores.style.display = 'block';
         }
-        function habilitarBoton(){
+        function habilitarBoton() {
             document.getElementById('get').disabled = false;
             document.getElementById('post').disabled = true;
         }

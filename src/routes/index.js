@@ -10,6 +10,8 @@ var arrayt = [];
 var arrayl = [];
 var arrayc = [];
 
+var arraya = [];
+
 //utilizaremos router para las rutas ya no app
 router.get('/estudiantes', (req, res) => {
     res.render('index', { max: 15 });
@@ -40,6 +42,7 @@ router.post('/postusers', (req, res) => {
     prueba12 = req.body.prue;
     arrayt = req.body.arrayTipos;
     arrayc = req.body.arrayColumnas;
+    arraya = req.body.arrayAnalisis;
     //automatizar(0);
 });
 router.get('/users', (req, res) => {
@@ -47,7 +50,8 @@ router.get('/users', (req, res) => {
         tx3: prueba12,
         tx4: arrayt,
         tx5: arrayl,
-        tx6: arrayc
+        tx6: arrayc,
+        tx7: arraya
     });
 });
 module.exports = router;
