@@ -7,7 +7,6 @@ var exec = require('child_process').exec;
 app.set('view engine', 'ejs');
 app.set('port', 3000);
 app.set('views', path.join(__dirname, 'views'));
-
 //rutas
 app.use(require('./routes/index'));
 
