@@ -9,6 +9,7 @@ var lineas;
 let w = 0;
 var palabras1 = [];
 var tipos = [];
+var columnas = [];
 var tipo = 1000;
 var matriz = new Array(17);
 var estado = 0;
@@ -159,7 +160,7 @@ var palabraTem = "";
 function partir() {
   palabraTem = "";
   let nuevoE = 0;
-  var corchete = 0;
+  let columna = 0;
   for (let p = 0; p < lineas.length; p++) {
     var lineaTemporal = lineas[p];
     palabraTem = "";
@@ -198,6 +199,8 @@ function partir() {
         if (palabraTem.length > 0 && estado < 10) {
           palabras1.push(palabraTem);
           console.log(palabraTem);
+          columna++;
+          columnas.push(columna);
           fila1.push(p + 1);
           palabraTem = "";
           estado = 0;
@@ -208,12 +211,18 @@ function partir() {
       }
 
       if (p == (lineas.length - 1) && q == (lineaTemporal.length - 1)) {
-        if (palabraTem.length > 0){
+        if (palabraTem.length > 0) {
           palabras1.push(palabraTem);
+          fila1.push(p + 1);
+          columna++;
+          columnas.push(columna);
         }
         palabraTem = "";
         palabraTem += char1;
         palabras1.push(palabraTem);
+
+        columna++;
+        columnas.push(columna);
         console.log(palabraTem);
         fila1.push(p + 1);
       } else {
@@ -226,6 +235,9 @@ function partir() {
               imp += palabraTem.charAt(i).replace('_', ' ');
             }
             palabras1.push(imp);
+
+            columna++;
+            columnas.push(columna);
             console.log(imp);
             fila1.push(p + 1);
             palabraTem = "";
@@ -235,8 +247,10 @@ function partir() {
             estado = matriz[estado][tipo];
           } else {
             if (palabraTem.length > 0) {
-              if (palabraTem != '_') {
+              if (palabraTem.replace(' ','_') != '_') {
                 palabras1.push(palabraTem);
+                columna++;
+                columnas.push(columna);
               }
               console.log(palabraTem);
               fila1.push(p + 1);
@@ -258,6 +272,7 @@ function partir() {
       palabraTem = "";
       estado = 0;
     }
+    columna = 0;
   }
   definirTipo();
 }
@@ -289,7 +304,17 @@ function definirTipo() {
     } else if (temporalpal == '<=' || temporalpal == '>=' || temporalpal == '==') {
       tipos.push("COMPARADOR");
     } else {
-      tipos.push("IDENTIFICADOR");
+      if (temporalpal.length > 1 && temporalpal.indexOf('"') != -1 && temporalpal.charAt(0) == '"') {
+        tipos.push("CADENA");
+      } else if (temporalpal.length > 3 && temporalpal.indexOf('*') != -1 && temporalpal.charAt(0) == '/') {
+        tipos.push("COMENTARIO");
+      } else {
+        if (esPalabraReservada(temporalpal)) {
+          tipos.push(temporalpal);
+        } else {
+          tipos.push("IDENTIFICADOR");
+        }
+      }
     }
   }
 }
@@ -304,6 +329,7 @@ const sendData = () => {
   axios.post('http://localhost:3000/postusers',
     {
       arrayTipos: tipos,
+      arrayColumnas: columnas,
       arrayLinea: fila1,
       prue: palabras1
     },
@@ -329,7 +355,7 @@ const getData = () => {
     }
     for (let y = 0; y < response.data.tx3.length; y++) {
       setTimeout(function () {
-        var htmlTexto = "<tr><td>" + response.data.tx3[y] + "</td><td>" + response.data.tx4[y] + "</td><td>" + response.data.tx5[y] + "</td></tr>";
+        var htmlTexto = "<tr><td>" + response.data.tx3[y] + "</td><td>" + response.data.tx4[y] + "</td><td>" + response.data.tx5[y] + "</td><td>" + response.data.tx6[y] + "</td></tr>";
         datos.innerHTML = datos.innerHTML + htmlTexto;
       }, (500));
     }
@@ -351,6 +377,17 @@ const esOpera = (caracter) => {
   let paso = false;
   for (var i = 0; i < array1.length; i++) {
     if (caracter.charAt(0) == array1[i]) {
+      paso = true;
+      break;
+    }
+  }
+  return paso;
+};
+const esPalabraReservada = (caracter) => {
+  var array1 = ['FUNCION', 'FUNCTION', 'PRINCIPAL', 'RETORNAR', 'VACIO', 'VARIABLE', 'ENTERO', 'DECIMAL', 'BOOLEANO', 'CADENA', 'CARACTER', 'SI', 'SINO', 'MIENTRAS', 'PARA', 'HACER', 'IMPRIMIR', 'VERDADERO', 'FALSO', 'IF', 'ELSE', 'INT'];
+  let paso = false;
+  for (var i = 0; i < array1.length; i++) {
+    if (caracter.toUpperCase() == array1[i]) {
       paso = true;
       break;
     }

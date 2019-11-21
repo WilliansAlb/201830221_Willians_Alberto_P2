@@ -8,11 +8,7 @@ var texto2;
 var prueba12 = [];
 var arrayt = [];
 var arrayl = [];
-var matriz = new Array(10);
-let estado = 0;
-let tipo = 100;
-let nuevapa = false;
-let posicion;
+var arrayc = [];
 
 //utilizaremos router para las rutas ya no app
 router.get('/estudiantes', (req, res) => {
@@ -43,13 +39,15 @@ router.post('/postusers', (req, res) => {
     arrayl = req.body.arrayLinea;
     prueba12 = req.body.prue;
     arrayt = req.body.arrayTipos;
+    arrayc = req.body.arrayColumnas;
     //automatizar(0);
 });
 router.get('/users', (req, res) => {
     res.status(200).json({
         tx3: prueba12,
         tx4: arrayt,
-        tx5: arrayl
+        tx5: arrayl,
+        tx6: arrayc
     });
 });
 module.exports = router;
