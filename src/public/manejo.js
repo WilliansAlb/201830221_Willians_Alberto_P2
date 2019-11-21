@@ -16,6 +16,9 @@ var columnas = [];
 var tipo = 1000;
 var matriz = new Array(17);
 
+var pila = [];
+var clm = 110101;
+
 var matriz2 = new Array(13);
 var estado = 0;
 var fila1 = [];
@@ -301,10 +304,11 @@ function partir() {
   definirTipo();
   escribiendoMensaje();
   hacerMatriz();
+  analizarSintaxis();
 }
 function hacerMatriz() {
   for (var h = 0; h < 13; h++) {
-    matriz2[p] = new Array(31);
+    matriz2[h] = new Array(31);
   }
   for (var i = 0; i < 13; i++) {
     for (var u = 0; u < 31; u++) {
@@ -314,36 +318,36 @@ function hacerMatriz() {
   estadosMatriz();
 }
 function estadosMatriz() {
-  matriz2[0][0] = ['FUNCION','PRINCIPAL','{','operaciones','}','codigo'];
-  matriz2[1][0] = ['FUNCION','ID','(','parametros',')','{','operaciones','}','codigo'];
+  matriz2[0][0] = ['FUNCION', 'PRINCIPAL', '{', 'operaciones', '}', 'codigo'];
+  matriz2[1][0] = ['FUNCION', 'ID', '(', 'parametros', ')', '{', 'operaciones', '}', 'codigo'];
   matriz2[1][2] = ['operaciones'];
   matriz2[1][3] = ['operaciones'];
   matriz2[1][4] = ['operaciones'];
   matriz2[1][23] = ['EPSILON'];
   matriz2[1][5] = ['operaciones'];
-  matriz2[2][2] = ['VARIABLE','tipo','ID','f'];
+  matriz2[2][2] = ['VARIABLE', 'tipo', 'ID', 'f'];
   matriz2[1][6] = ['operaciones'];
-  matriz2[2][3] = ['SI','(','CONDICION',')','{','operaciones','}','p','operaciones'];
-  matriz2[2][4] = ['MIENTRAS','(','CONDICION',')','{','operaciones','}','operaciones'];
-  matriz2[2][5] = ['HACER','{','operaciones','}','MIENTRAS','(','CONDICION',')','operaciones'];
-  matriz2[2][6] = ['ID','f'];
+  matriz2[2][3] = ['SI', '(', 'CONDICION', ')', '{', 'operaciones', '}', 'p', 'operaciones'];
+  matriz2[2][4] = ['MIENTRAS', '(', 'CONDICION', ')', '{', 'operaciones', '}', 'operaciones'];
+  matriz2[2][5] = ['HACER', '{', 'operaciones', '}', 'MIENTRAS', '(', 'CONDICION', ')', 'operaciones'];
+  matriz2[2][6] = ['ID', 'f'];
   matriz2[3][2] = ['EPSILON'];
   matriz2[3][3] = ['EPSILON'];
   matriz2[3][4] = ['EPSILON'];
   matriz2[3][5] = ['EPSILON'];
   matriz2[3][6] = ['EPSILON'];
-  matriz2[3][7] = ['SINO','{','codigo','}'];
-  
-  matriz2[4][22] = ['(','parametros',')'];
-  matriz2[4][29] = ['=','valor',';'];
+  matriz2[3][7] = ['SINO', '{', 'codigo', '}'];
+
+  matriz2[4][22] = ['(', 'parametros', ')'];
+  matriz2[4][29] = ['=', 'valor', ';'];
   matriz2[4][30] = [';'];
 
   matriz2[5][8] = ['ENTERO'];
   matriz2[5][9] = ['FLOTANTE'];
   matriz2[5][10] = ['BOOLEANO'];
   matriz2[5][11] = ['FLOTANTE'];
-  
-  matriz2[6][2] = ['VARIABLE','ID','=','valor'];
+
+  matriz2[6][2] = ['VARIABLE', 'ID', '=', 'valor'];
   matriz2[6][6] = ['ID'];
 
   matriz2[7][17] = ['CADENAV'];
@@ -353,8 +357,8 @@ function estadosMatriz() {
   matriz2[7][21] = ['BOOLEANOV'];
   matriz2[7][27] = ['EPSILON'];
 
-  matriz2[8][6] = ['ID','operador','ID','q','math'];
-  matriz2[8][22] = ['(','math',')','q'];
+  matriz2[8][6] = ['ID', 'operador', 'ID', 'q', 'math'];
+  matriz2[8][22] = ['(', 'math', ')', 'q'];
   matriz2[8][27] = ['EPSILON'];
 
   matriz2[9][6] = ['EPSILON'];
@@ -374,7 +378,7 @@ function estadosMatriz() {
   matriz2[10][24] = ['=='];
   matriz2[10][25] = ['<='];
   matriz2[10][26] = ['>='];
-  matriz2[11][6] = ['ID','comparador','valor'];
+  matriz2[11][6] = ['ID', 'comparador', 'valor'];
   matriz2[12][24] = ['=='];
   matriz2[12][25] = ['<='];
   matriz2[12][26] = ['>='];
@@ -398,7 +402,7 @@ function definirTipo() {
         buscando.push(temporalpal);
       } else if (temporalpal == '"' || temporalpal == ':' || temporalpal == ';' || temporalpal == '“') {
         tipos.push("SIMBOLO");
-        if (temporalpal==';'){
+        if (temporalpal == ';') {
           buscando.push(';');
         } else {
           buscando.push('SIMBOLO DESCONOCIDO');
@@ -478,6 +482,136 @@ const sendData = () => {
       console.log(error);
     });
   count++;
+};
+function analizarSintaxis() {
+  for (var o = 0; o < buscando.length; o++) {
+    var pb = buscando[o];
+    if (pb == 'FUNCION') {
+      clm = 0;
+    } else if (pb == 'PRINCIPAL') {
+      clm = 1;
+    } else if (pb == 'VARIABLE') {
+      clm = 2;
+    } else if (pb == 'SI') {
+      clm = 3;
+    } else if (pb == 'MIENTRAS') {
+      clm = 4;
+    } else if (pb == 'HACER') {
+      clm = 5;
+    } else if (pb == 'ID') {
+      clm = 6;
+    } else if (pb == 'SINO') {
+      clm = 7;
+    } else if (pb == 'ENTERO') {
+      clm = 8;
+    } else if (pb == 'FLOTANTE') {
+      clm = 9;
+    } else if (pb == 'BOOLEANO') {
+      clm = 10;
+    } else if (pb == 'FLOTANTE') {
+      clm = 11;
+    } else if (pb == '+') {
+      clm = 12;
+    } else if (pb == '-') {
+      clm = 13;
+    } else if (pb == '*') {
+      clm = 14;
+    } else if (pb == '/') {
+      clm = 15;
+    } else if (pb == '%') {
+      clm = 16;
+    } else if (pb == 'CADENAV') {
+      clm = 17;
+    } else if (pb == 'ENTEROV') {
+      clm = 18;
+    } else if (pb == 'FLOTANTEV') {
+      clm = 19;
+    } else if (pb == 'FLOTANTEV') {
+      clm = 20;
+    } else if (pb == 'BOOLEANOV') {
+      clm = 21;
+    } else if (pb == '(') {
+      clm = 22;
+    } else if (pb == '$') {
+      clm = 23;
+    } else if (pb == '==') {
+      clm = 24;
+    } else if (pb == '<=') {
+      clm = 25;
+    } else if (pb == '>=') {
+      clm = 26;
+    } else if (pb == ')') {
+      clm = 27;
+    } else if (pb == 'EPSILON') {
+      clm = 28;
+    } else if (pb == '=') {
+      clm = 29;
+    } else if (pb == ';') {
+      clm = 30;
+    }
+    var arra = [];
+    if (o == 0) {
+      arra = matriz2[0][0];
+      for (let u = arra.length; u > 0; u--) {
+        pila.push(arra[u]);
+      }
+      console.log("entra aca");
+    } else {
+      if (pila.length > 0) {
+        var nls = pila[pila.length - 1];
+        if (nls == pb) {
+          pila.pop();
+        } else {
+          arra = matriz2[clm][esNoTerminal()];
+          if (arra[0] != 0) {
+            for (let v = arra.length; v > 0; v--) {
+              pila.push(arra[v]);
+            }
+          } else {
+            mensaje += "<h2>ERROR</h2>";
+          }
+        }
+      } else {
+        mensaje += "<h1>terminado</h1>";
+      }
+    }
+  } if (pila.length != 0) {
+    mensaje += '<h1>... pero con errores</h1>';
+  } else {
+    mensaje += '<h1>todo ok</h1>';
+  }
+}
+const esNoTerminal = () => {
+  if (pila.length > 0) {
+    var mls = pila[pila.length - 1];
+    if (mls == 'codigo') {
+      return 1;
+    } else if (mls == 'operaciones') {
+      return 2;
+    } else if (mls == 'p') {
+      return 3;
+    } else if (mls == 'f') {
+      return 4;
+    } else if (mls == 'tipo') {
+      return 5;
+    } else if (mls == 'parametros') {
+      return 6;
+    } else if (mls == 'valor') {
+      return 7;
+    } else if (mls == 'math') {
+      return 8;
+    } else if (mls == 'q') {
+      return 9;
+    } else if (mls == 'operador') {
+      return 10;
+    } else if (mls == 'condicion') {
+      return 11;
+    } else if (mls == 'comparador') {
+      return 12;
+    }
+  } else {
+    return 0;
+  }
 };
 
 function mostrar() {
